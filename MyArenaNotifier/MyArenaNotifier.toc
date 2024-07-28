@@ -1,0 +1,7 @@
+## Interface: 90205
+## Title: MyArenaNotifier
+## Notes: Notifies when arena queue pops
+## Author: YourName
+## SavedVariables: MyArenaNotifierDB
+
+MyArenaNotifier.lua
