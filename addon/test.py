@@ -12,10 +12,10 @@ webhook_url = 'https://discord.com/api/webhooks/1266892466443911219/G4L_WwIBQsxg
 
 print(f"Checking file: {saved_variables_file}")
 
-def send_discord_notification():
-    print("Preparing to send notification...")
+def send_discord_notification(message):
+    print(f"Preparing to send notification: {message}")
     data = {
-        "content": "Player has logged in!"
+        "content": message
     }
     try:
         response = requests.post(webhook_url, json=data)
@@ -38,27 +38,23 @@ def monitor_file():
     
     while True:
         try:
-            print("Sleeping for 5 seconds...")
             time.sleep(5)  # Check every 5 seconds
             
-            print("Checking for file modifications...")
             current_modified = os.path.getmtime(saved_variables_file)
             print(f"Current modified time: {current_modified}, Last modified time: {last_modified}")
             
             if current_modified != last_modified:
                 print("File modification detected.")
                 last_modified = current_modified
-                # Read the file to check if the player has logged in
                 try:
                     with open(saved_variables_file, 'r') as file:
-                        content = file.read()
+                        content = file.read().strip()  # Strip leading/trailing whitespace
                         print(f"File content:\n{content}")
-                        if '"queued"] = true' in content:
-                            print("Player login detected. Sending notification.")
-                            send_discord_notification()
-                            # Reset the queued flag
+                        if '["queued"] = true' in content:
+                            print("Player login or arena queue pop detected. Sending notification.")
+                            send_discord_notification("Player has logged in or arena queue popped!")
                             with open(saved_variables_file, 'w') as file:
-                                file.write(content.replace('"queued"] = true', '"queued"] = false'))
+                                file.write(content.replace('["queued"] = true', '["queued"] = false'))
                             print("Queued flag reset.")
                         else:
                             print("Queued flag not set in file content.")
@@ -66,6 +62,7 @@ def monitor_file():
                     print(f"Error reading file: {e}")
         except Exception as e:
             print(f"Error in monitoring loop: {e}")
+
 
 if __name__ == '__main__':
     print("Running the monitor_file function")
