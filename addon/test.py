@@ -36,6 +36,8 @@ def monitor_file():
     last_modified = os.path.getmtime(saved_variables_file)
     print(f"Initial last modified time: {last_modified}")
     
+    notified = False  # Track if we've already sent a notification
+
     while True:
         try:
             time.sleep(5)  # Check every 5 seconds
@@ -50,19 +52,18 @@ def monitor_file():
                     with open(saved_variables_file, 'r') as file:
                         content = file.read().strip()  # Strip leading/trailing whitespace
                         print(f"File content:\n{content}")
-                        if '["queued"] = true' in content:
-                            print("Player login or arena queue pop detected. Sending notification.")
-                            send_discord_notification("Player has logged in or arena queue popped!")
-                            with open(saved_variables_file, 'w') as file:
-                                file.write(content.replace('["queued"] = true', '["queued"] = false'))
-                            print("Queued flag reset.")
-                        else:
-                            print("Queued flag not set in file content.")
+                        
+                        if 'queued = true' in content and not notified:
+                            print("Arena queue pop detected. Sending notification.")
+                            send_discord_notification("Arena queue has popped!")
+                            notified = True  # Set notified to True to avoid re-sending
+                        elif 'queued = false' in content:
+                            notified = False  # Reset notified flag when queued is false
+                            print("Queued flag reset detected.")
                 except Exception as e:
                     print(f"Error reading file: {e}")
         except Exception as e:
             print(f"Error in monitoring loop: {e}")
-
 
 if __name__ == '__main__':
     print("Running the monitor_file function")

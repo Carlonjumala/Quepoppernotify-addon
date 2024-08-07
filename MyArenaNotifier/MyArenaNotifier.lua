@@ -1,24 +1,23 @@
--- Ensure the SavedVariables table exists
-MyArenaNotifierDB = MyArenaNotifierDB or {}
+-- Create a table to store the saved variables
+MyArenaNotifier = MyArenaNotifier or {}
 
--- Create a frame to listen for events
+-- Frame to handle events
 local frame = CreateFrame("Frame")
+frame:RegisterEvent("UPDATE_BATTLEFIELD_STATUS")
 
--- Register the ADDON_LOADED and PLAYER_LOGIN events
-frame:RegisterEvent("ADDON_LOADED")
-frame:RegisterEvent("PLAYER_LOGIN")
+local function updateSavedVariables(status)
+    MyArenaNotifier.queued = status
+    -- Mark the variables to be saved
+    MyArenaNotifier.lastUpdate = time()
+end
 
-frame:SetScript("OnEvent", function(self, event, arg1)
-    if event == "ADDON_LOADED" and arg1 == "MyArenaNotifier" then
-        -- When the addon is loaded, initialize saved variables if they do not exist
-        if MyArenaNotifierDB.queued == nil then
-            MyArenaNotifierDB.queued = false
-            print("Addon loaded for the first time.")
+frame:SetScript("OnEvent", function(self, event, ...)
+    if event == "UPDATE_BATTLEFIELD_STATUS" then
+        local status = GetBattlefieldStatus(1)
+        if status == "confirm" then
+            updateSavedVariables(true)
+        else
+            updateSavedVariables(false)
         end
-    elseif event == "PLAYER_LOGIN" then
-        -- When the player logs in, set the queued variable to true and save
-        MyArenaNotifierDB.queued = true
-        print("Player has logged in!")
-        print("MyArenaNotifierDB.queued set to true")
     end
 end)
