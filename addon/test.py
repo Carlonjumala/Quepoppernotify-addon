@@ -8,7 +8,7 @@ print("Starting script...")
 saved_variables_file = r'D:\World Of Warcraft Retail\World of Warcraft\_retail_\WTF\Account\431287727#1\SavedVariables\MyArenaNotifier.lua'
 
 # Discord webhook URL
-webhook_url = 'https://discord.com/api/webhooks/1266892466443911219/G4L_WwIBQsxgNhk6cwLPan490GQ3rVLPmSpbiHMuJZsWIYqIKD5JKbTZ58VagkSfA2zh'
+webhook_url = ''
 
 print(f"Checking file: {saved_variables_file}")
 
